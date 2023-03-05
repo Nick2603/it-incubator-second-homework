@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { body } from "express-validator";
+import { authMiddleware } from "../middlewares/authMiddleware";
 import { inputValidationMiddleware } from "../middlewares/inputValidationMiddleware";
 import { videosRepository } from "../repositories/videosRepository";
 import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
@@ -126,7 +127,7 @@ videosRouter.put('/:id', (req: Request, res: Response) => {
   };
 });
 
-videosRouter.delete('/:id', (req: Request, res: Response) => {
+videosRouter.delete('/:id', authMiddleware, (req: Request, res: Response) => {
   const id = +req.params.id;
   const result = videosRepository.deleteVideo(id);
   if (result) {

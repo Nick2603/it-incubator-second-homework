@@ -4,4 +4,5 @@ export enum CodeResponsesEnum {
   No_content_204 = 204,
   Incorrect_values_400 = 400,
   Not_found_404 = 404,
+  Unauthorized_401 = 401,
 }

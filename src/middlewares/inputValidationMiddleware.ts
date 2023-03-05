@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
 
 const customValidationResult = validationResult.withDefaults({
   formatter: error => {
@@ -13,7 +14,7 @@ const customValidationResult = validationResult.withDefaults({
 export const inputValidationMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errors = customValidationResult(req);
   if (!errors.isEmpty()) {
-    res.status(400).json({ errorsMessages: errors.array() });
+    res.status(CodeResponsesEnum.Incorrect_values_400).json({ errorsMessages: errors.array() });
   } else {
     next();
   };
