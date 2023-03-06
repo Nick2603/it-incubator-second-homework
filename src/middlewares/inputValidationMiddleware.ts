@@ -14,7 +14,7 @@ const customValidationResult = validationResult.withDefaults({
 export const inputValidationMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const errors = customValidationResult(req);
   if (!errors.isEmpty()) {
-    res.status(CodeResponsesEnum.Incorrect_values_400).json({ errorsMessages: errors.array() });
+    res.status(CodeResponsesEnum.Incorrect_values_400).json({ errorsMessages: errors.array({ onlyFirstError: true }) });
   } else {
     next();
   };
