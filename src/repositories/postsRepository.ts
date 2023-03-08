@@ -13,7 +13,7 @@ export const postsRepository = {
   },
 
   async getPostById(id: string): Promise<IPost | null> {
-    const post = await postsCollection.findOne({ id });
+    const post = await postsCollection.findOne({ id }, { projection: { _id: 0 }});
     return post;
   },
 
@@ -29,7 +29,15 @@ export const postsRepository = {
       blogName: blog!.name,
     };
     await postsCollection.insertOne(newPost);
-    return newPost;
+    return {
+      id: newPost.id,
+      title: newPost.title,
+      shortDescription: newPost.shortDescription,
+      content: newPost.content,
+      blogId: newPost.blogId,
+      createdAt: newPost.createdAt,
+      blogName: newPost.blogName,
+    };
   },
 
   async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
