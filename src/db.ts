@@ -12,8 +12,9 @@ if (!url) {
 
 const client = new MongoClient(url);
 
-export const blogsCollection = client.db().collection<IBlog>("blogs");
-export const postsCollection = client.db().collection<IPost>("posts");
+const db = client.db();
+export const blogsCollection = db.collection<IBlog>("blogs");
+export const postsCollection = db.collection<IPost>("posts");
 
 export const runDb = async () => {
   try {

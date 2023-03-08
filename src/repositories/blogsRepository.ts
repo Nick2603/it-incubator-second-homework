@@ -2,18 +2,19 @@ import { blogsCollection } from "../db";
 import { IBlog } from "../types/IBlog";
 
 export const blogsRepository = {
-  // async deleteAllBlogs(): void {
-  //   blogs.length = 0;
-  // },
-
-  async getBlogs(): Promise<IBlog[]> {
-    return blogsCollection.find({}).toArray();
+  async deleteAllBlogs(): Promise<void> {
+    await blogsCollection.deleteMany({});
   },
 
-  // async getBlogById(id: string): IBlog | undefined {
-  //   const blog = blogs.find(b => b.id === id);
-  //   return blog;
-  // },
+  async getBlogs(): Promise<IBlog[]> {
+    const blogs = await blogsCollection.find({}).project<IBlog>({ _id: 0 }).toArray();
+    return blogs;
+  },
+
+  async getBlogById(id: string): Promise<IBlog | null> {
+    const blog = await blogsCollection.findOne({ id });
+    return blog;
+  },
 
   async createBlog(name: string, description: string, websiteUrl: string): Promise<IBlog> {
     const newBlog: IBlog = {
@@ -21,29 +22,20 @@ export const blogsRepository = {
       name,
       description,
       websiteUrl,
+      createdAt: new Date().toISOString(),
+      isMembership: false,
     };
-    const result = await blogsCollection.insertOne(newBlog);
-    return { ...newBlog, _id: result.insertedId };
+    await blogsCollection.insertOne(newBlog);
+    return newBlog;
   },
 
-  // async updateBlog(id: string, name: string, description: string, websiteUrl: string): IBlog | undefined {
-  //   const blog = blogs.find(b => b.id === id);
-  //   if (blog) {
-  //     blog.name = name;
-  //     blog.description = description;
-  //     blog.websiteUrl = websiteUrl;
-  //     return blog;
-  //   };
-  //   return;
-  // },
+  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+    const result = await blogsCollection.updateOne({ id }, { $set: { name, description, websiteUrl }});
+    return result.matchedCount === 1;
+  },
 
-  // async deleteBlog(id: string): boolean {
-  //   for (let i = 0; i < blogs.length; i++) {
-  //     if (blogs[i].id === id) {
-  //       blogs.splice(i, 1);
-  //       return true;
-  //     };
-  //   };
-  //   return false;
-  // },
+  async deleteBlog(id: string): Promise<boolean> {
+    const result = await blogsCollection.deleteOne({ id })
+    return result.deletedCount === 1;
+  },
 };

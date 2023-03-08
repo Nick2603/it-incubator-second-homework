@@ -8,4 +8,5 @@ export interface IPost{
   content: string;
   blogId: string;
   blogName: string;
+  createdAt: string;
 };

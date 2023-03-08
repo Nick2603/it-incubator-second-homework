@@ -14,9 +14,9 @@ app.use(cors());
 
 app.use(parserMiddleware);
 
-app.delete('/testing/all-data', (req: Request, res: Response) => {
-  // blogsRepository.deleteAllBlogs();
-  // postsRepository.deleteAllPosts();
+app.delete('/testing/all-data', async (req: Request, res: Response) => {
+  await blogsRepository.deleteAllBlogs();
+  await postsRepository.deleteAllPosts();
   res.sendStatus(CodeResponsesEnum.No_content_204);
 });
 

@@ -1,56 +1,45 @@
-import { blogsCollection } from "../db";
 import { postsCollection } from "../db";
 import { IPost } from "../types/IPost";
+import { blogsRepository } from "./blogsRepository";
 
 export const postsRepository = {
-  // async deleteAllPosts(): void {
-  //   posts.length = 0;
-  // },
-
-  async getPosts(): Promise<IPost[]> {
-    return postsCollection.find({}).toArray();
+  async deleteAllPosts(): Promise<void> {
+    await postsCollection.deleteMany({});
   },
 
-  // async getPostById(id: string): IPost | undefined {
-  //   const post = posts.find(p => p.id === id);
-  //   return post;
-  // },
+  async getPosts(): Promise<IPost[]> {
+    const posts = await postsCollection.find({}).project<IPost>({ _id: 0 }).toArray();
+    return posts;
+  },
 
-  // async createPost(title: string, shortDescription: string, content: string, blogId: string): IPost | undefined {
-  //   const blog = blogsRepository.getBlogById(blogId);
-  //   const newPost: IPost = {
-  //     id: Date.now().toString(),
-  //     title,
-  //     shortDescription,
-  //     content,
-  //     blogId,
-  //     blogName: blog!.name,
-  //   };
-  //   posts.unshift(newPost);
-  //   return newPost;
-  // },
+  async getPostById(id: string): Promise<IPost | null> {
+    const post = await postsCollection.findOne({ id });
+    return post;
+  },
 
-  // async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): IPost | undefined {
-  //   const blog = blogsRepository.getBlogById(blogId);
-  //   const post = posts.find(p => p.id === id);
-  //   if (post) {
-  //     post.title = title;
-  //     post.shortDescription = shortDescription;
-  //     post.content = content;
-  //     post.blogId = blogId;
-  //     post.blogName = blog!.name;
-  //     return post;
-  //   };
-  //   return;
-  // },
+  async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<IPost> {
+    const blog = await blogsRepository.getBlogById(blogId);
+    const newPost: IPost = {
+      id: Date.now().toString(),
+      title,
+      shortDescription,
+      content,
+      blogId,
+      createdAt: new Date().toISOString(),
+      blogName: blog!.name,
+    };
+    await postsCollection.insertOne(newPost);
+    return newPost;
+  },
 
-  // async deletePost(id: string): boolean {
-  //   for (let i = 0; i < posts.length; i++) {
-  //     if (posts[i].id === id) {
-  //       posts.splice(i, 1);
-  //       return true;
-  //     };
-  //   };
-  //   return false;
-  // },
+  async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
+    const blog = await blogsRepository.getBlogById(blogId);
+    const result = await postsCollection.updateOne({ id }, { $set: { title, shortDescription, content, blogId, blogName: blog!.name }});
+    return result.matchedCount === 1;
+  },
+
+  async deletePost(id: string): Promise<boolean> {
+    const result = await postsCollection.deleteOne({ id })
+    return result.deletedCount === 1;
+  },
 };
