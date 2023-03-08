@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import bodyParser from "body-parser";
 import cors from "cors";
 import { blogsRouter } from "./routes/blogsRouter";
 import { postsRouter } from "./routes/postsRouter";
@@ -9,15 +8,15 @@ import { CodeResponsesEnum } from "./types/CodeResponsesEnum";
 
 export const app = express();
 
-const parserMiddleware = bodyParser.json();
+const parserMiddleware = express.json();
 
 app.use(cors());
 
 app.use(parserMiddleware);
 
 app.delete('/testing/all-data', (req: Request, res: Response) => {
-  blogsRepository.deleteAllBlogs();
-  postsRepository.deleteAllPosts();
+  // blogsRepository.deleteAllBlogs();
+  // postsRepository.deleteAllPosts();
   res.sendStatus(CodeResponsesEnum.No_content_204);
 });
 
