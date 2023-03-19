@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { isValidBlogId } from "../middlewares/blogIdValidationMiddleware";
 import { inputValidationMiddleware } from "../middlewares/inputValidationMiddleware";
-import { postsRepository } from "../repositories/postsRepository";
+import { postsService } from "../domains/postsService";
 import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
 
 export const postsRouter = Router({});
@@ -17,13 +17,13 @@ const contentDescriptionValidationMiddleware = body("content").isString().trim()
 const blogIdValidationMiddleware = body("blogId").custom(isValidBlogId);
 
 postsRouter.get('/', async (req: Request, res: Response) => {
-  const posts = await postsRepository.getPosts();
+  const posts = await postsService.getPosts(req.query.title);
   res.status(200).send(posts);
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {
   const postId = req.params.id;
-  const post = await postsRepository.getPostById(postId);
+  const post = await postsService.getPostById(postId);
   if (post) {
     res.status(200).send(post);
     return;
@@ -44,7 +44,7 @@ postsRouter.post('/',
     const content = req.body.content;
     const blogId = req.body.blogId;
 
-    const newPost = await postsRepository.createPost(title, shortDescription, content, blogId);
+    const newPost = await postsService.createPost(title, shortDescription, content, blogId);
     res.status(CodeResponsesEnum.Created_201).send(newPost);
   }
 );
@@ -63,7 +63,7 @@ postsRouter.put('/:id',
     const content = req.body.content;
     const blogId = req.body.blogId;
 
-    const result = await postsRepository.updatePost(postId, title, shortDescription, content, blogId);
+    const result = await postsService.updatePost(postId, title, shortDescription, content, blogId);
     if (result) {
       res.sendStatus(CodeResponsesEnum.No_content_204);
     } else {
@@ -74,7 +74,7 @@ postsRouter.put('/:id',
 
 postsRouter.delete('/:id', authMiddleware, async (req: Request, res: Response) => {
   const id = req.params.id;
-  const result = await postsRepository.deletePost(id);
+  const result = await postsService.deletePost(id);
   if (result) {
     res.sendStatus(CodeResponsesEnum.No_content_204);
     return;

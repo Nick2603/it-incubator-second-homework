@@ -1,3 +1,5 @@
+import { InsertOneResult } from "mongodb";
+import { ParsedQs } from "qs";
 import { postsCollection } from "../db";
 import { IPost } from "../types/IPost";
 import { blogsRepository } from "./blogsRepository";
@@ -7,37 +9,21 @@ export const postsRepository = {
     await postsCollection.deleteMany({});
   },
 
-  async getPosts(): Promise<IPost[]> {
-    const posts = await postsCollection.find({}).project<IPost>({ _id: 0 }).toArray();
-    return posts;
+  async getPosts(title: string | string[] | ParsedQs | ParsedQs[] | undefined): Promise<IPost[]> {
+    const filter: any = {};
+    
+    if (title) {
+      filter.title = { $regex: title };
+    };
+    return await postsCollection.find(filter).project<IPost>({ _id: 0 }).toArray();
   },
 
   async getPostById(id: string): Promise<IPost | null> {
-    const post = await postsCollection.findOne({ id }, { projection: { _id: 0 }});
-    return post;
+    return await postsCollection.findOne({ id }, { projection: { _id: 0 }});
   },
 
-  async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<IPost> {
-    const blog = await blogsRepository.getBlogById(blogId);
-    const newPost: IPost = {
-      id: Date.now().toString(),
-      title,
-      shortDescription,
-      content,
-      blogId,
-      createdAt: new Date().toISOString(),
-      blogName: blog!.name,
-    };
-    await postsCollection.insertOne(newPost);
-    return {
-      id: newPost.id,
-      title: newPost.title,
-      shortDescription: newPost.shortDescription,
-      content: newPost.content,
-      blogId: newPost.blogId,
-      createdAt: newPost.createdAt,
-      blogName: newPost.blogName,
-    };
+  async createPost(newPost: IPost): Promise<InsertOneResult<IPost>> {
+    return await postsCollection.insertOne(newPost);
   },
 
   async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {

@@ -1,3 +1,5 @@
+import { InsertOneResult } from "mongodb";
+import { ParsedQs } from "qs";
 import { blogsCollection } from "../db";
 import { IBlog } from "../types/IBlog";
 
@@ -6,34 +8,22 @@ export const blogsRepository = {
     await blogsCollection.deleteMany({});
   },
 
-  async getBlogs(): Promise<IBlog[]> {
-    const blogs = await blogsCollection.find({}).project<IBlog>({ _id: 0 }).toArray();
-    return blogs;
+  async getBlogs(name: string | string[] | ParsedQs | ParsedQs[] | undefined): Promise<IBlog[]> {
+    const filter: any = {};
+    
+    if (name) {
+      filter.name = { $regex: name };
+    };
+  
+    return await blogsCollection.find(filter).project<IBlog>({ _id: 0 }).toArray();
   },
 
   async getBlogById(id: string): Promise<IBlog | null> {
-    const blog = await blogsCollection.findOne({ id }, { projection: { _id: 0 }});
-    return blog;
+    return await blogsCollection.findOne({ id }, { projection: { _id: 0 }});
   },
 
-  async createBlog(name: string, description: string, websiteUrl: string): Promise<IBlog> {
-    const newBlog: IBlog = {
-      id: Date.now().toString(),
-      name,
-      description,
-      websiteUrl,
-      createdAt: new Date().toISOString(),
-      isMembership: false,
-    };
-    await blogsCollection.insertOne(newBlog);
-    return {
-      id: newBlog.id,
-      name: newBlog.name,
-      description: newBlog.description,
-      websiteUrl: newBlog.websiteUrl,
-      createdAt: newBlog.createdAt,
-      isMembership: newBlog.isMembership,
-    };
+  async createBlog(newBlog: IBlog): Promise<InsertOneResult<IBlog>> {
+    return await blogsCollection.insertOne(newBlog);
   },
 
   async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
