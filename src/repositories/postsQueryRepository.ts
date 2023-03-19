@@ -7,7 +7,7 @@ export const postsQueryRepository = {
     const filter: any = {};
     
     if (title) {
-      filter.title = { $regex: title };
+      filter.title = { $regex: `(?i)${title}(?-i)` };
     };
     return await postsCollection.find(filter).project<IPost>({ _id: 0 }).toArray();
   },

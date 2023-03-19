@@ -7,7 +7,7 @@ export const blogsQueryRepository = {
     const filter: any = {};
     
     if (name) {
-      filter.name = { $regex: name };
+      filter.name = { $regex: `(?i)${name}(?-i)` };
     };
   
     return await blogsCollection.find(filter).project<IBlog>({ _id: 0 }).toArray();
