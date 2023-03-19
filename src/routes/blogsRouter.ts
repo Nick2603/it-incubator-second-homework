@@ -4,6 +4,7 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import { inputValidationMiddleware } from "../middlewares/inputValidationMiddleware";
 import { blogsService } from "../domains/blogsService";
 import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
+import { blogsQueryRepository } from "../repositories/blogsQueryRepository";
 
 export const blogsRouter = Router({});
 
@@ -14,13 +15,13 @@ const descriptionValidationMiddleware = body("description").isString().trim().is
 const websiteUrlValidationMiddleware = body("websiteUrl").isString().trim().isLength({ min: 2, max: 100 }).matches("^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$").withMessage("Incorrect value for websiteUrl");
 
 blogsRouter.get('/', async (req: Request, res: Response) => {
-  const blogs = await blogsService.getBlogs(req.query.name);
+  const blogs = await blogsQueryRepository.getBlogs(req.query.name);
   res.status(200).send(blogs);
 });
 
 blogsRouter.get('/:id', async (req: Request, res: Response) => {
   const blogId = req.params.id;
-  const blog = await blogsService.getBlogById(blogId);
+  const blog = await blogsQueryRepository.getBlogById(blogId);
   if (blog) {
     res.status(200).send(blog);
     return;

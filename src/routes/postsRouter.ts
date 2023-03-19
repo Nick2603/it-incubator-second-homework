@@ -5,6 +5,7 @@ import { isValidBlogId } from "../middlewares/blogIdValidationMiddleware";
 import { inputValidationMiddleware } from "../middlewares/inputValidationMiddleware";
 import { postsService } from "../domains/postsService";
 import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
+import { postsQueryRepository } from "../repositories/postsQueryRepository";
 
 export const postsRouter = Router({});
 
@@ -17,13 +18,13 @@ const contentDescriptionValidationMiddleware = body("content").isString().trim()
 const blogIdValidationMiddleware = body("blogId").custom(isValidBlogId);
 
 postsRouter.get('/', async (req: Request, res: Response) => {
-  const posts = await postsService.getPosts(req.query.title);
+  const posts = await postsQueryRepository.getPosts(req.query.title);
   res.status(200).send(posts);
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {
   const postId = req.params.id;
-  const post = await postsService.getPostById(postId);
+  const post = await postsQueryRepository.getPostById(postId);
   if (post) {
     res.status(200).send(post);
     return;

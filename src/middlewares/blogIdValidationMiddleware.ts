@@ -1,9 +1,9 @@
 import { CustomValidator } from 'express-validator';
-import { blogsRepository } from '../repositories/blogsRepository';
+import { blogsQueryRepository } from '../repositories/blogsQueryRepository';
 
 export const isValidBlogId: CustomValidator = async blogId => {
 
-  const blog = await blogsRepository.getBlogById(blogId);
+  const blog = await blogsQueryRepository.getBlogById(blogId);
   if (blog) {
     return true;
   } else {

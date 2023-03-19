@@ -1,18 +1,9 @@
-import { ParsedQs } from "qs";
 import { blogsRepository } from "../repositories/blogsRepository";
 import { IBlog } from "../types/IBlog";
 
 export const blogsService = {
   async deleteAllBlogs(): Promise<void> {
     await blogsRepository.deleteAllBlogs();
-  },
-
-  async getBlogs(name: string | string[] | ParsedQs | ParsedQs[] | undefined): Promise<IBlog[]> {
-    return await blogsRepository.getBlogs(name);
-  },
-
-  async getBlogById(id: string): Promise<IBlog | null> {
-    return await blogsRepository.getBlogById(id);
   },
 
   async createBlog(name: string, description: string, websiteUrl: string): Promise<IBlog> {
