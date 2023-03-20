@@ -27,7 +27,7 @@ export const blogsQueryRepository = {
       filter.name = { $regex: `(?i)${searchNameTerm}(?-i)` };
     };
     
-    const totalCount =  await blogsCollection.countDocuments({});
+    const totalCount =  await blogsCollection.count();
     const blogs =  await blogsCollection.find(filter).sort(sortBy.toString(), sortDirection as SortDirection).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IBlog>({ _id: 0 }).toArray();
 
     return {
