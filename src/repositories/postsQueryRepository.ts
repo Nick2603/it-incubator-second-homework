@@ -31,8 +31,12 @@ export const postsQueryRepository = {
       filter.blogId = blogId;
     };
 
+    if (sortDirection !== ("desc" || 1 || -1 || "asc" || "ascending" || "descending")) {
+      throw new Error("Invalid value for sortDirection")
+    }
+
     const totalCount =  await postsCollection.countDocuments({});
-    const posts = await postsCollection.find(filter).sort({ sortBy: sortDirection === "desc" ? -1 : 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
+    const posts = await postsCollection.find(filter).sort(sortBy.toString(), sortDirection).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
 
     return {
       pagesCount: Math.ceil(totalCount / +pageSize),

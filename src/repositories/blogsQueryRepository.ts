@@ -25,9 +25,13 @@ export const blogsQueryRepository = {
     if (searchNameTerm) {
       filter.name = { $regex: `(?i)${searchNameTerm}(?-i)` };
     };
-  
+
+    if (sortDirection !== ("desc" || 1 || -1 || "asc" || "ascending" || "descending")) {
+      throw new Error("Invalid value for sortDirection")
+    }
+    
     const totalCount =  await blogsCollection.countDocuments({});
-    const blogs =  await blogsCollection.find(filter).sort({ sortBy: sortDirection === "desc" ? -1 : 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IBlog>({ _id: 0 }).toArray();
+    const blogs =  await blogsCollection.find(filter).sort(sortBy.toString(), sortDirection).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IBlog>({ _id: 0 }).toArray();
 
     return {
       pagesCount: Math.ceil(totalCount / +pageSize),
