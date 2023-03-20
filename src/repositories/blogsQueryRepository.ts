@@ -27,7 +27,7 @@ export const blogsQueryRepository = {
     };
   
     const totalCount =  await blogsCollection.countDocuments({});
-    const blogs =  await blogsCollection.find(filter).sort({ sortBy: sortDirection === "asc" ? 1 : -1, _id: 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IBlog>({ _id: 0 }).toArray();
+    const blogs =  await blogsCollection.find(filter).sort({ sortBy: sortDirection === "desc" ? -1 : 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IBlog>({ _id: 0 }).toArray();
 
     return {
       pagesCount: Math.ceil(totalCount / +pageSize),

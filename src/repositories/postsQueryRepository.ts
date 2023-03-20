@@ -32,7 +32,7 @@ export const postsQueryRepository = {
     };
 
     const totalCount =  await postsCollection.countDocuments({});
-    const posts = await postsCollection.find(filter).sort({ sortBy: sortDirection === "asc" ? 1 : -1, _id: 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
+    const posts = await postsCollection.find(filter).sort({ sortBy: sortDirection === "desc" ? -1 : 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
 
     return {
       pagesCount: Math.ceil(totalCount / +pageSize),
