@@ -35,7 +35,7 @@ export const postsQueryRepository = {
     const posts = await postsCollection.find(filter).sort({ sortBy: sortDirection === "asc" ? 1 : -1, _id: 1 }).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
 
     return {
-      pagesCount: Math.floor(totalCount / +pageSize),
+      pagesCount: Math.ceil(totalCount / +pageSize),
       page: +pageNumber,
       pageSize: +pageSize,
       totalCount,

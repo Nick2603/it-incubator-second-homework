@@ -113,7 +113,6 @@ async (req: Request, res: Response) => {
     const title = req.body.title;
     const shortDescription = req.body.shortDescription;
     const content = req.body.content;
-    const blogId = req.body.blogId;
 
     const newPost = await postsService.createPost(title, shortDescription, content, blogId);
     res.status(CodeResponsesEnum.Created_201).send(newPost);
