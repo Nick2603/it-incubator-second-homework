@@ -7,6 +7,10 @@ export const blogsRepository = {
     await blogsCollection.deleteMany({});
   },
 
+  async getBlogById(id: string): Promise<IBlog | null> {
+    return await blogsCollection.findOne({ id }, { projection: { _id: 0 }});
+  },
+
   async createBlog(newBlog: IBlog): Promise<InsertOneResult<IBlog>> {
     return await blogsCollection.insertOne(newBlog);
   },

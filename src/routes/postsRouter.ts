@@ -9,22 +9,27 @@ import { postsQueryRepository } from "../repositories/postsQueryRepository";
 
 export const postsRouter = Router({});
 
-const titleValidationMiddleware = body("title").isString().trim().isLength({ min: 2, max: 30 }).withMessage("Incorrect value for title");
+export const titleValidationMiddleware = body("title").isString().trim().isLength({ min: 2, max: 30 }).withMessage("Incorrect value for title");
 
-const shortDescriptionValidationMiddleware = body("shortDescription").isString().trim().isLength({ min: 2, max: 100 }).withMessage("Incorrect value for shortDescription");
+export const shortDescriptionValidationMiddleware = body("shortDescription").isString().trim().isLength({ min: 2, max: 100 }).withMessage("Incorrect value for shortDescription");
 
-const contentDescriptionValidationMiddleware = body("content").isString().trim().isLength({ min: 2, max: 1000 }).withMessage("Incorrect value for content");
+export const contentDescriptionValidationMiddleware = body("content").isString().trim().isLength({ min: 2, max: 1000 }).withMessage("Incorrect value for content");
 
 const blogIdValidationMiddleware = body("blogId").custom(isValidBlogId);
 
 postsRouter.get('/', async (req: Request, res: Response) => {
-  const posts = await postsQueryRepository.getPosts(req.query.title);
+  const title = req.query.title;
+  const sortBy = req.query.sortBy;
+  const sortDirection = req.query.sortDirection;
+  const pageNumber = req.query.pageNumber;
+  const pageSize = req.query.pageSize;
+  const posts = await postsQueryRepository.getPosts({title, sortBy, sortDirection, pageNumber, pageSize});
   res.status(200).send(posts);
 });
 
 postsRouter.get('/:id', async (req: Request, res: Response) => {
   const postId = req.params.id;
-  const post = await postsQueryRepository.getPostById(postId);
+  const post = await postsService.getPostById(postId);
   if (post) {
     res.status(200).send(post);
     return;

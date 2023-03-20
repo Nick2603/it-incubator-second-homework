@@ -6,6 +6,10 @@ export const blogsService = {
     await blogsRepository.deleteAllBlogs();
   },
 
+  async getBlogById(id: string): Promise<IBlog | null> {
+    return await blogsRepository.getBlogById(id);
+  },
+
   async createBlog(name: string, description: string, websiteUrl: string): Promise<IBlog> {
     const newBlog: IBlog = {
       id: Date.now().toString(),

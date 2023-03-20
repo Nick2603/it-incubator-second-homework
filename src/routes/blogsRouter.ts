@@ -5,6 +5,9 @@ import { inputValidationMiddleware } from "../middlewares/inputValidationMiddlew
 import { blogsService } from "../domains/blogsService";
 import { CodeResponsesEnum } from "../types/CodeResponsesEnum";
 import { blogsQueryRepository } from "../repositories/blogsQueryRepository";
+import { postsQueryRepository } from "../repositories/postsQueryRepository";
+import { contentDescriptionValidationMiddleware, shortDescriptionValidationMiddleware, titleValidationMiddleware } from "./postsRouter";
+import { postsService } from "../domains/postsService";
 
 export const blogsRouter = Router({});
 
@@ -15,13 +18,18 @@ const descriptionValidationMiddleware = body("description").isString().trim().is
 const websiteUrlValidationMiddleware = body("websiteUrl").isString().trim().isLength({ min: 2, max: 100 }).matches("^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$").withMessage("Incorrect value for websiteUrl");
 
 blogsRouter.get('/', async (req: Request, res: Response) => {
-  const blogs = await blogsQueryRepository.getBlogs(req.query.name);
+  const searchNameTerm = req.query.searchNameTerm;
+  const sortBy = req.query.sortBy;
+  const sortDirection = req.query.sortDirection;
+  const pageNumber = req.query.pageNumber;
+  const pageSize = req.query.pageSize;
+  const blogs = await blogsQueryRepository.getBlogs({searchNameTerm, sortBy, sortDirection, pageNumber, pageSize});
   res.status(200).send(blogs);
 });
 
 blogsRouter.get('/:id', async (req: Request, res: Response) => {
   const blogId = req.params.id;
-  const blog = await blogsQueryRepository.getBlogById(blogId);
+  const blog = await blogsService.getBlogById(blogId);
   if (blog) {
     res.status(200).send(blog);
     return;
@@ -71,6 +79,44 @@ blogsRouter.delete('/:id', authMiddleware, async (req: Request, res: Response) =
   const result = await blogsService.deleteBlog(id);
   if (result) {
     res.sendStatus(CodeResponsesEnum.No_content_204);
+    return;
+  }
+  res.sendStatus(CodeResponsesEnum.Not_found_404);
+});
+
+blogsRouter.get('/:blogId/posts', async (req: Request, res: Response) => {
+  const blogId = req.params.blogId;
+  const blog = await blogsService.getBlogById(blogId);
+  if (blog) {
+    const title = req.params.title;
+    const sortBy = req.query.sortBy;
+    const sortDirection = req.query.sortDirection;
+    const pageNumber = req.query.pageNumber;
+    const pageSize = req.query.pageSize;
+    const posts = await postsQueryRepository.getPosts({title, sortBy, sortDirection, pageNumber, pageSize, blogId});
+    res.status(200).send(posts);
+    return;
+  }
+  res.sendStatus(CodeResponsesEnum.Not_found_404);
+});
+
+blogsRouter.post('/:blogId/posts',
+authMiddleware,
+titleValidationMiddleware,
+shortDescriptionValidationMiddleware,
+contentDescriptionValidationMiddleware,
+inputValidationMiddleware,
+async (req: Request, res: Response) => {
+  const blogId = req.params.blogId;
+  const blog = await blogsService.getBlogById(blogId);
+  if (blog) {
+    const title = req.body.title;
+    const shortDescription = req.body.shortDescription;
+    const content = req.body.content;
+    const blogId = req.body.blogId;
+
+    const newPost = await postsService.createPost(title, shortDescription, content, blogId);
+    res.status(CodeResponsesEnum.Created_201).send(newPost);
     return;
   }
   res.sendStatus(CodeResponsesEnum.Not_found_404);
