@@ -32,7 +32,7 @@ export const postsQueryRepository = {
       filter.blogId = blogId;
     };
 
-    const totalCount =  await postsCollection.count();
+    const totalCount =  await postsCollection.countDocuments(filter);
     const posts = await postsCollection.find(filter).sort(sortBy.toString(), sortDirection as SortDirection).skip((+pageNumber - 1) * +pageSize).limit(+pageSize).project<IPost>({ _id: 0 }).toArray();
 
     return {
